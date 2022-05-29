@@ -45,7 +45,7 @@ class _DetailBookPageState extends State<DetailBookPage> {
 
   @override
   Widget build(BuildContext context) {
-    double c_width = MediaQuery.of(context).size.width * 0.75;
+    double c_width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
         title: Text("Detail"),
@@ -57,8 +57,8 @@ class _DetailBookPageState extends State<DetailBookPage> {
           : Column(
               children: [
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  // mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     GestureDetector(
                       onTap: () {
@@ -72,19 +72,82 @@ class _DetailBookPageState extends State<DetailBookPage> {
                       },
                       child: Image.network(
                         bookDetail!.image!,
-                        height: 100,
+                        height: 150,
                       ),
                     ),
+                    Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Column(
+                        children: [
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: (Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  bookDetail!.title!,
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(bookDetail!.authors!),
+                                Row(
+                                  children: List.generate(
+                                      5,
+                                      (index) => Icon(
+                                            Icons.star,
+                                            color: index <=
+                                                    int.parse(
+                                                        bookDetail!.rating!)
+                                                ? Colors.yellow
+                                                : Colors.grey,
+                                          )),
+                                ),
+                                Text(bookDetail!.subtitle!),
+                                Text(bookDetail!.price!),
+                              ],
+                            )),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  children: [
                     Container(
                       padding: const EdgeInsets.all(10),
                       width: c_width,
                       child: Column(
                         children: [
-                          Text(bookDetail!.title!),
-                          Text(bookDetail!.subtitle!),
-                          Text(bookDetail!.authors!),
-                          Text(bookDetail!.publisher!),
-                          Text(bookDetail!.desc!),
+                          Container(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  fixedSize: Size(double.infinity, 50)),
+                              onPressed: (() {}),
+                              child: Text("BUY"),
+                            ),
+                          ),
+
+                          // OutlinedButton(onPressed: onPressed, child: child),
+                          // TextButton(onPressed: onPressed, child: child)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: Text(bookDetail!.desc!),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text("ISBN" + bookDetail!.isbn13!),
+                              Text(bookDetail!.pages! + "PAGES"),
+                              Text(bookDetail!.publisher!),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
                         ],
                       ),
                     )
