@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:book_app/models/book_detail_response.dart';
+import 'package:book_app/models/book_list_response.dart';
 import 'package:book_app/view/image_view_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -18,17 +19,39 @@ class _DetailBookPageState extends State<DetailBookPage> {
   BookDetailResponse? bookDetail;
 
   fetchBookDetail() async {
-    print(widget.isbn);
+    // print(widget.isbn);
     //https://pub.dev/packages/http
     //widget : untuk akses kelas diatasnya
     var url = Uri.parse('https://api.itbook.store/1.0/books/${widget.isbn}');
     var response = await http.get(url);
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+    // print('Response status: ${response.statusCode}');
+    // print('Response body: ${response.body}');
 
     if (response.statusCode == 200) {
       final jsonBookDetail = jsonDecode(response.body);
       bookDetail = BookDetailResponse.fromJson(jsonBookDetail);
+      //refresh
+      setState(() {});
+      fetchSimilarBookDetail(bookDetail!.title!);
+    }
+
+    // print(await http.read(Uri.parse('https://example.com/foobar.txt')));
+  }
+
+  //get similar data books
+  BookListResponse? similarBooks;
+  fetchSimilarBookDetail(String title) async {
+    // print(widget.isbn);
+    //https://pub.dev/packages/http
+    //widget : untuk akses kelas diatasnya
+    var url = Uri.parse('https://api.itbook.store/1.0/search/${title}');
+    var response = await http.get(url);
+    // print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final jsonBookDetail = jsonDecode(response.body);
+      similarBooks = BookListResponse.fromJson(jsonBookDetail);
       //refresh
       setState(() {});
     }
@@ -90,6 +113,7 @@ class _DetailBookPageState extends State<DetailBookPage> {
                                   style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold),
+                                  maxLines: 3,
                                 ),
                                 Text(bookDetail!.authors!),
                                 Row(
@@ -145,9 +169,44 @@ class _DetailBookPageState extends State<DetailBookPage> {
                               Text(bookDetail!.publisher!),
                             ],
                           ),
-                          SizedBox(
-                            height: 5,
-                          ),
+                          Divider(),
+                          //Similar book list
+                          similarBooks == null
+                              ? CircularProgressIndicator()
+                              : Container(
+                                  height: 170,
+                                  child: ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    shrinkWrap: true,
+                                    //supaya bisa di scroll
+                                    physics: NeverScrollableScrollPhysics(),
+                                    itemCount: similarBooks!.books!.length,
+                                    itemBuilder: (context, index) {
+                                      final current =
+                                          similarBooks!.books![index];
+                                      return Container(
+                                        width: 80,
+                                        child: Column(
+                                          children: [
+                                            Image.network(
+                                              current.image!,
+                                              height: 100,
+                                            ),
+                                            Text(
+                                              current.title!,
+                                              maxLines: 2,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                )
                         ],
                       ),
                     )
